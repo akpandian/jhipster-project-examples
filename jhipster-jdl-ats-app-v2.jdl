@@ -1,0 +1,78 @@
+
+entity JobProfiles {
+	name String required,
+	status String required,
+	createdBy String,
+	createdAt Instant,
+	modifiedAt Instant
+}
+
+entity JobRequirement {
+	jobID String required,
+	description TextBlob required,
+	positionCount Integer required,
+	status String required,
+	publishedAt Instant required,
+	validityInDays Integer required,
+	expiresAt Instant,
+	createdBy String,
+	createdAt Instant,
+	modifiedAt Instant
+}
+
+entity SystemRequest {
+	requestRGSID String required,
+	status String required,
+	expiresAt ZonedDateTime required,
+	createdBy String,
+	createdAt Instant,
+	modifiedAt Instant
+}
+
+entity Applicant {
+	fullName String required,
+	gender String required,
+	dateOfBirth String required,
+	contactNumber String required,
+	email String required,
+	residentCity String required,
+	identityDocumentType String required,
+	identityDocumentNumber String required,
+	urlCV AnyBlob required,
+	createdBy String,
+	createdAt Instant,
+	modifiedAt Instant
+}
+
+entity Skills {
+	name String required,
+	type String,
+	status String required,
+	createdBy String,
+	createdAt Instant,
+	modifiedAt Instant
+}
+
+entity ApplicantSkill {
+	experienceInYears Float required,
+	experienceLevel String,
+	createdAt Instant,
+	modifiedAt Instant
+}
+
+// defining OneToMany relationships
+relationship OneToMany {
+	JobProfiles to JobRequirement,
+	JobRequirement to SystemRequest,
+	Skills to ApplicantSkill,
+	Applicant to ApplicantSkill
+}
+
+// defining ManyToMany relationships
+relationship ManyToMany {
+	SystemRequest to Applicant
+}
+
+// Set pagination options
+paginate JobProfiles, Skills with pagination
+paginate JobRequirement, SystemRequest, Applicant, ApplicantSkill with infinite-scroll
