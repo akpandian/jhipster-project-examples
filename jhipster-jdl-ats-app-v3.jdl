@@ -1,0 +1,76 @@
+
+entity JobProfiles {
+  name String required minlength(5) maxlength(100),
+  createdAt Instant,
+  modifiedAt Instant
+}
+
+entity JobRequirement {
+  // jobTitle = Expect to fetch thru Join from "JobProfiles" table
+  jobID String required,
+  description TextBlob required,
+  positionCount Integer required max(999),
+  status String required,
+  publishedAt Instant required,
+  validityInDays Integer required min(1) max(365),
+  /**
+  * Should be auto-calculated by "publishedAt + validityInDays"
+  */
+  expiresAt Instant,
+  createdAt Instant,
+  modifiedAt Instant
+}
+
+entity SystemRequest {
+  requestRGSID String required maxlength(20),
+  status String required,
+  expiresAt ZonedDateTime required,
+  createdAt Instant,
+  modifiedAt Instant
+}
+
+entity Applicant {
+  fullName String required minlength(3) maxlength(100),
+  gender String required,
+  dateOfBirth String required,
+  contactNumber String required,
+  email String required,
+  residentCity String required,
+  identityDocumentType String required,
+  identityDocumentNumber String required,
+  urlCV AnyBlob required,
+  createdAt Instant,
+  modifiedAt Instant
+}
+
+entity Skills {
+  name String required minlength(1) maxlength(100),
+  type String,
+  createdAt Instant,
+  modifiedAt Instant
+}
+
+entity ApplicantSkill {
+  // skillName = Expect to fetch thru Join from "Skills" table
+  experienceInYears Float required min(0) max(60),
+  experienceLevel String,
+  createdAt Instant,
+  modifiedAt Instant
+}
+
+// defining OneToMany relationships
+relationship OneToMany {
+  JobProfiles to JobRequirement{jobprofiles(name)},
+  JobRequirement to SystemRequest{jobrequirement(jobID)},
+  Skills to ApplicantSkill{skills(name)},
+  Applicant to ApplicantSkill
+}
+
+// defining ManyToMany relationships
+relationship ManyToMany {
+  SystemRequest to Applicant
+}
+
+// Set pagination options
+paginate JobProfiles, Skills with pagination
+paginate JobRequirement, SystemRequest, Applicant, ApplicantSkill with infinite-scroll
