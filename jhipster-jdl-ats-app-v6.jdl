@@ -1,0 +1,131 @@
+entity City {
+  name String required unique minlength(2) maxlength(50),
+  createdAt Instant,
+  modifiedAt Instant
+}
+
+entity Gender {
+	gender String required unique maxlength(15),
+}
+
+entity IdentityDocumentType {
+	documentType String required unique maxlength(25),
+}
+
+entity Customer {
+  name String required unique minlength(5) maxlength(100),
+  createdAt Instant,
+  modifiedAt Instant
+}
+
+entity Project {
+  name String required unique minlength(5) maxlength(100),
+  createdAt Instant,
+  modifiedAt Instant
+}
+
+entity JobProfile {
+  name String required unique minlength(5) maxlength(100),
+  createdAt Instant,
+  modifiedAt Instant
+}
+
+entity JobRequirement {
+  // jobTitle = Expect to fetch thru Join from "JobProfile" table
+  jobID String required unique,
+  description TextBlob required,
+  positionCount Integer required max(999),
+  status String required,
+  publishedAt Instant required,
+  validityInDays Integer required min(1) max(365),
+  /**
+  * Should be auto-calculated by "publishedAt + validityInDays"
+  */
+  expiresAt Instant,
+  createdAt Instant,
+  modifiedAt Instant
+}
+
+entity SystemRequest {
+  requestRGSID String required unique maxlength(20),
+  status String required,
+  expiresAt ZonedDateTime required,
+  createdAt Instant,
+  modifiedAt Instant
+}
+
+entity Applicant {
+  fullName String required minlength(3) maxlength(100),
+  //COMMENTED because gender field will be added thru relationship
+  //gender String required,
+  dateOfBirth LocalDate required,
+  contactNumber String required,
+  email String required unique,
+  //COMMENTED because these fields will be added thru relationship
+  //residentCity String required,
+  //identityDocumentType String required,
+  identityDocumentNumber String required,
+  urlCV AnyBlob required,
+  createdAt Instant,
+  modifiedAt Instant
+}
+
+entity SkillType {
+  name String required unique minlength(4) maxlength(50),
+  createdAt Instant,
+  modifiedAt Instant
+}
+
+entity Skill {
+  name String required unique minlength(1) maxlength(100),
+  createdAt Instant,
+  modifiedAt Instant
+}
+
+entity ApplicantSkill {
+  // skillName = Expect to fetch thru Join from "Skill" table
+  experienceInYears Float required min(0) max(60),
+  experienceLevel String,
+  createdAt Instant,
+  modifiedAt Instant
+}
+
+// defining OneToMany relationships
+relationship OneToMany {
+
+  // Project
+  Customer to Project{Customer(name)},
+  City to Project{City(name)},
+
+  // JobRequirement
+  Project to JobRequirement{Project(name)},
+  JobProfile to JobRequirement{JobProfile(name)},
+  JobRequirement to SystemRequest{JobRequirement(jobID)},
+
+  //Applicant
+  Gender to Applicant{Gender(gender)},
+  IdentityDocumentType to Applicant{IdentityDocumentType(documentType)},
+  City to Applicant{City(name)},
+
+  // Skill
+  SkillType to Skill{SkillType(name)},
+  Skill to ApplicantSkill{Skill(name)},
+
+  // Relating Skill to Applicant
+  Applicant to ApplicantSkill
+}
+
+// defining ManyToMany relationships
+relationship ManyToMany {
+  SystemRequest to Applicant
+}
+
+// Filter for entities
+filter JobProfile, Skill, Customer, Project
+
+// Set pagination options
+paginate JobProfile, Skill, SkillType, Customer, Project, City, Gender, IdentityDocumentType with infinite-scroll
+paginate JobRequirement, SystemRequest, Applicant, ApplicantSkill with pagination
+
+// Entity Services
+service all with serviceImpl
