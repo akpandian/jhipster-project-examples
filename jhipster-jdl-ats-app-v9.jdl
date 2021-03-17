@@ -1,0 +1,348 @@
+// Independent Entities
+entity City {
+  name String required unique minlength(2) maxlength(50)
+}
+
+entity Gender {
+	gender String required unique maxlength(15)
+}
+
+entity IdentityDocumentType {
+	documentType String required unique maxlength(25)
+}
+
+entity Customer {
+  name String required unique minlength(1) maxlength(100),
+  createdAt Instant,
+  lastModifiedAt Instant
+}
+
+entity Project {
+  name String required unique minlength(1) maxlength(100),
+  createdAt Instant,
+  lastModifiedAt Instant
+}
+
+entity JobProfile {
+  name String required unique minlength(5) maxlength(100),
+  createdAt Instant,
+  lastModifiedAt Instant
+  //"createdBy" field will be joined from "User" entity
+  //"lastModifiedBy" field will be joined from "User" entity
+}
+
+entity SkillType {
+  name String required unique minlength(4) maxlength(50),
+  createdAt Instant,
+  lastModifiedAt Instant
+}
+
+entity Skill {
+  name String required unique minlength(1) maxlength(100),
+  createdAt Instant,
+  lastModifiedAt Instant
+}
+
+entity ExperienceLevel {
+	experienceLevel String required unique minlength(3) maxlength(25)
+}
+
+entity JobRequirementStatus {
+	status String required unique minlength(3) maxlength(30),
+	description String required minlength(3) maxlength(100),
+    createdAt Instant,
+    lastModifiedAt Instant
+    //"createdBy" field will be joined from "User" entity
+    //"lastModifiedBy" field will be joined from "User" entity
+}
+
+entity JobRequirement {
+  //"jobProfileName" field will be joined from "JobProfile" entity
+  requestId String required unique,
+  /**
+  * jobTitle is auto-calculated by concatenation as "requestId" + ": " + "jobProfileName"
+  */
+  jobTitle String required unique,
+  //Later "description" will be replaced by a list of "RequiredJobSkill" entity
+  description TextBlob required,
+  positionCount Integer required max(999),
+  //"status" field will be joined from "JobRequirementStatus" entity
+  publishedAt Instant required,
+  validityInDays Integer required min(1) max(365),
+  /**
+  * expiresAt is auto-calculated by publishedAt + validityInDays
+  */
+  expiresAt Instant,
+  createdAt Instant,
+  lastModifiedAt Instant
+  //"createdBy" field will be joined from "User" entity
+  //"lastModifiedBy" field will be joined from "User" entity
+}
+
+entity RecruitmentRequestStatus {
+	status String required unique minlength(3) maxlength(30),
+	description String required minlength(5) maxlength(100),
+	createdAt Instant,
+	lastModifiedAt Instant,
+    //"createdBy" field will be joined from "User" entity
+    //"lastModifiedBy" field will be joined from "User" entity
+}
+
+entity RecruitmentReason {
+	reason String required unique minlength(3) maxlength(30),
+	createdAt Instant,
+	lastModifiedAt Instant,
+    //"createdBy" field will be joined from "User" entity
+    //"lastModifiedBy" field will be joined from "User" entity
+}
+
+entity RecruitmentRequest {
+    requestId String required unique maxlength(20),
+    //"status" field will be joined from "RecruitmentRequestStatus" entity
+    //"recruitmentReason" field will be joined from "RecruitmentReason" entity
+    oldRequestId String maxlength(20),
+    replacementMotive String maxlength(100),
+    expiresAt LocalDate required,
+    createdAt Instant,
+    lastModifiedAt Instant,
+    //"createdBy" field will be joined from "User" entity
+    //"lastModifiedBy" field will be joined from "User" entity
+}
+
+entity ReferralSource {
+	source String required unique minlength(2) maxlength(30),
+	createdAt Instant,
+	lastModifiedAt Instant,
+    //"createdBy" field will be joined from "User" entity
+    //"lastModifiedBy" field will be joined from "User" entity
+}
+
+entity Applicant {
+    fullName String required minlength(3) maxlength(100),
+    //"gender" field will be joined from "Gender" entity
+    dateOfBirth LocalDate required,
+    contactNumber String required,
+    email String required unique,
+    //"cityName" field will be joined from "City" entity
+    //"identityDocumentType" field will be joined from "IdentityDocumentType" entity
+    identityDocumentNumber String required,
+    urlCV AnyBlob required,
+    //"referralSource" field will be joined from "ReferralSource" entity
+    createdAt Instant,
+    lastModifiedAt Instant,
+    //"createdBy" field will be joined from "User" entity
+    //"lastModifiedBy" field will be joined from "User" entity
+}
+
+entity ApplicantSkill {
+    //"name" field will be joined from "Skill" entity
+    experienceInYears Float required min(0.5) max(60),
+    //"experienceLevel" field will be joined from "ExperienceLevel" entity
+    notes String maxlength(100),
+	createdAt Instant,
+	lastModifiedAt Instant,
+    //"createdBy" field will be joined from "User" entity
+    //"lastModifiedBy" field will be joined from "User" entity
+}
+
+entity JobSkillImportance {
+	importance String required unique minlength(2) maxlength(30)
+}
+
+entity RequiredJobSkill {
+    //"name" field will be joined from "Skill" entity
+    minimumExperienceInYears Float required min(0.5) max(60),
+    //"skillImportance" field will be joined from "JobSkillImportance" entity
+    comments String maxlength(100)
+}
+
+entity RecruitmentStage {
+    stage String required unique maxlength(20),
+    createdAt Instant,
+    lastModifiedAt Instant,
+    //"createdBy" field will be joined from "User" entity
+    //"lastModifiedBy" field will be joined from "User" entity
+}
+
+entity RecruitmentSubStage {
+    subStage String required unique maxlength(50),
+    //"stage" field will be joined from "RecruitmentStage" entity
+    createdAt Instant,
+    lastModifiedAt Instant,
+    //"createdBy" field will be joined from "User" entity
+    //"lastModifiedBy" field will be joined from "User" entity
+}
+
+entity RecruitmentStageStatus {
+    /**
+    * status values could be: "None", "In Progress", "Done"
+    */
+    status String required unique maxlength(50),
+    createdAt Instant,
+    lastModifiedAt Instant,
+    //"createdBy" field will be joined from "User" entity
+    //"lastModifiedBy" field will be joined from "User" entity
+}
+
+entity ApplicantEvaluationSummary {
+    //"evaluatedBy" field will be joined from "User" entity
+    overallRating Float required min(0) max(5.0),
+    isPassed Boolean required,
+    evaluationComments TextBlob,
+    isAdditionalValidationRequired Boolean required,
+    createdAt Instant,
+    lastModifiedAt Instant,
+    //"createdBy" field will be joined from "User" entity
+    //"lastModifiedBy" field will be joined from "User" entity
+}
+
+entity JobApplication {
+    /**
+    * This entity has OneToMany relationship with "ApplicantEvaluationSummary" entity
+    */
+    //recruitmentRequestId: field included via ManyToOne relationShip with "RecruitmentRequest" entity
+    //applicantId: Included via ManyToOne relationShip with "Applicants" entity
+    //"recruitmentStage" field will be joined from "RecruitmentStage" entity
+    //"recruitmentSubStage" field will be joined from "RecruitmentSubStage" entity
+    //"recruitmentStageStatus" field will be joined from "RecruitmentStageStatus" entity
+    //"currentOwner" field will be joined from "User" entity
+    assignedToCurrentOwnerAt Instant required,
+    createdAt Instant,
+    lastModifiedAt Instant,
+    //"createdBy" field will be joined from "User" entity
+    //"lastModifiedBy" field will be joined from "User" entity
+}
+
+entity JobApplicationHistory {
+    //recruitmentRequestId: field included via ManyToOne relationShip with "RecruitmentRequest" entity
+    //applicantId: Included via ManyToOne relationShip with "Applicants" entity
+    //"recruitmentStage" field will be joined from "RecruitmentStage" entity
+    //"recruitmentSubStage" field will be joined from "RecruitmentSubStage" entity
+    //"recruitmentStageStatus" field will be joined from "RecruitmentStageStatus" entity
+    //"currentOwner" field will be joined from "User" entity
+    assignmentStartedAt Instant required,
+    assignmentEndedAt Instant,
+    timeConsumedInDays Integer, //Time calculated using Working-day Calendar
+    timeConsumedInMinutes Integer, //Time calculated using Working-day Calendar
+    createdAt Instant
+}
+
+entity Country {
+    name String required unique maxlength(50)
+}
+
+entity Holiday {
+    /**
+    * This entity has ManyToOne relationship with "Country" entity
+    */
+
+    //countryId: field included via ManyToOne relationShip with "Country" entity
+    year Integer min(2020) max(3000),
+    holiday LocalDate required,
+    holidayList String required,
+    createdAt Instant,
+    lastModifiedAt Instant,
+    //"createdBy" field will be joined from "User" entity
+    //"lastModifiedBy" field will be joined from "User" entity
+}
+
+// defining OneToMany relationships
+relationship OneToMany {
+
+  // Project
+  Customer to Project{Customer(name)},
+  City to Project{City(name)},
+
+  // JobRequirement
+  Project to JobRequirement{Project(name)},
+  JobProfile to JobRequirement{JobProfile(name)},
+  JobRequirementStatus to JobRequirement{JobRequirementStatus(status)},
+  //--User to JobRequirement{User(firstName)},
+
+  // Recruitment Reason & RecruitmentRequest/RGS Status
+  //--User to RecruitmentRequestStatus{User(firstName)},
+  //--User to RecruitmentReason{User(firstName)},
+
+  //RecruitmentRequest/RGS
+  RecruitmentRequestStatus to RecruitmentRequest{RecruitmentRequestStatus(status)},
+  RecruitmentReason to RecruitmentRequest{RecruitmentReason(reason)},
+  //--User to RecruitmentRequestStatus{User(firstName)},
+
+  // Relationship between RecruitmentRequest/RGS & JobRequirement
+  JobRequirement to RecruitmentRequest{JobRequirement(jobTitle)},
+
+  //Applicant
+  Gender to Applicant{Gender(gender)},
+  IdentityDocumentType to Applicant{IdentityDocumentType(documentType)},
+  City to Applicant{City(name)},
+  ReferralSource to Applicant{ReferralSource(source)},
+  //--User to Applicant{User(firstName)},
+
+  // Skill
+  SkillType to Skill{SkillType(name)},
+  Skill to ApplicantSkill{Skill(name)},
+
+  // Relating Skill to Applicant
+  ExperienceLevel to ApplicantSkill{ExperienceLevel(experienceLevel)},
+  Applicant to ApplicantSkill{Applicant(fullName)},
+  //--User to ApplicantSkill{User(firstName)},
+
+  // Recruitment Request
+  RecruitmentRequestStatus to RecruitmentRequest{RecruitmentRequestStatus(status)},
+
+  // Recruitment Stages and Sub-Stages
+  //--User to RecruitmentStage{User(firstName)},
+  //--User to RecruitmentSubStage{User(firstName)},
+  //--User to RecruitmentStageStatus{User(firstName)},
+  RecruitmentStage to RecruitmentSubStage{RecruitmentStage(stage)},
+
+  // Job Application
+  //--User to ApplicantEvaluationSummary{User(firstName)},
+  //--User to JobApplication{User(firstName)},
+  RecruitmentRequest to JobApplication{RecruitmentRequest(requestId)},
+  Applicant to JobApplication{Applicant(fullName)},
+  RecruitmentStage to JobApplication{currentRecruitmentStage(stage)},
+  RecruitmentSubStage to JobApplication{currentRecruitmentSubStage(subStage)},
+  RecruitmentStageStatus to JobApplication{currentRecruitmentStageStatus(status)},
+
+  // Applicant Evaluation Summary
+  JobApplication to ApplicantEvaluationSummary,
+  RecruitmentSubStage to ApplicantEvaluationSummary{evaluationStage(subStage)},
+
+  // Job Application History
+  //--User to JobApplicationHistory{User(firstName)},
+  RecruitmentRequest to JobApplicationHistory{RecruitmentRequest(requestId)},
+  Applicant to JobApplicationHistory{Applicant(fullName)},
+  RecruitmentStage to JobApplicationHistory{RecruitmentStage(stage)},
+  RecruitmentSubStage to JobApplicationHistory{RecruitmentSubStage(subStage)},
+  RecruitmentStageStatus to JobApplicationHistory{RecruitmentStageStatus(status)},
+
+  //Holiday
+  Country to Holiday{Country(name)},
+
+  //RequiredJobSkill
+  Skill to RequiredJobSkill{Skill(name)},
+  JobSkillImportance to RequiredJobSkill{JobSkillImportance(importance)},
+}
+
+// defining ManyToMany relationships
+relationship ManyToMany {
+  Applicant{RecruitmentRequest(requestId)} to RecruitmentRequest{Applicant(fullName)}
+}
+
+// Filter for entities
+filter JobProfile, Skill, Customer, Project
+filter Applicant, ApplicantSkill, JobRequirement, RequiredJobSkill, RecruitmentRequest, JobApplication, JobApplicationHistory
+
+// Set pagination options: Infinite Scroll
+paginate JobProfile, Skill, SkillType, Customer, Project, City, Gender, IdentityDocumentType with infinite-scroll
+paginate JobRequirementStatus, RecruitmentRequestStatus, RecruitmentReason, JobSkillImportance with infinite-scroll
+paginate ExperienceLevel, ReferralSource, Country, Holiday with infinite-scroll
+paginate RecruitmentStage, RecruitmentSubStage, RecruitmentStageStatus with infinite-scroll
+
+// Set pagination options: Infinite Scroll
+paginate JobRequirement, RecruitmentRequest, Applicant, ApplicantSkill with pagination
+paginate JobApplication, JobApplicationHistory, ApplicantEvaluationSummary with pagination
+
+// Entity Services
+service all with serviceImpl
